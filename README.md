@@ -36,3 +36,42 @@ You’ll learn:
 
 ## 📂 Repository Structure
 
+python-senior-developer-roadmap/
+│
+├── week_1_python_foundations/
+│ ├── day01_data_structures/
+│ ├── day02_functions_args_kwargs_scope/
+│ └── ...
+│
+├── week_2_async_concurrency_context/
+│ ├── day08_async_basics/
+│ ├── day09_concurrency_with_semaphore/
+│ └── ...
+│
+├── week_3_fastapi_orm_restapi/
+│ ├── day15_fastapi_basics/
+│ ├── day16_pydantic_nodels/
+│ └── ...
+│
+├── week_4_professional_backend/
+│ ├── day22_jwt_auth/
+│ ├── day23_middleware_tasks/
+│ ├── day24_redis_cache/
+│ ├── day25_file_uploads/
+│ ├── day26_testing/
+│ ├── day27_docker/
+│ └── day28_capstone_project/
+│ ├── app/
+│ │ ├── main.py
+│ │ ├── auth.py
+│ │ ├── crud.py
+│ │ ├── database.py
+│ │ ├── models.py
+│ │ ├── schemas.py
+│ │ └── tests/
+│ ├── Dockerfile
+│ ├── docker-compose.yml
+│ ├── requirements.txt
+│ └── README.md
+│
+└── README.md ← you are here
