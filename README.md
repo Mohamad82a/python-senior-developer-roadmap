@@ -35,7 +35,7 @@ You’ll learn:
 ---
 
 ## 📂 Repository Structure
-
+```text
 python-senior-developer-roadmap/
 │
 ├── week_1_python_foundations/
