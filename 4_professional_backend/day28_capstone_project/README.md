@@ -54,21 +54,22 @@ capstone-backend/
 ├── Dockerfile
 ├── docker-compose.yml
 └── .env
+```
 
 ---
 
 ## 🪜 Step-by-Step File Creation <a name="step-by-step"></a>
-
+---
 ## 1️⃣ Create and activate your virtual environment
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate   # macOS/Linux
 .venv\Scripts\activate    # Windows
-
+```
 ---
 
-##2️⃣ Create requirements.txt
+## 2️⃣ Create requirements.txt
 
 ```text
 fastapi
@@ -84,30 +85,32 @@ httpx
 aiofiles
 pytest
 pytest-asyncio
+```
 
 Install with:
 
 ```bash
 pip install -r requirements.txt
-
+```
 ---
 
-##3️⃣ Create .env
+## 3️⃣ Create .env
 
 ```ini
-
 DATABASE_URL=sqlite+aiosqlite:///./dev.db
 REDIS_URL=redis://localhost:6379/0
 JWT_SECRET=your-secret
 JWT_ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=60
 APP_DEBUG=true
+```
 
+---
 Copy to .env and modify before running.
 
 ---
 
-##4️⃣ Create database connection — app/database.py
+## 4️⃣ Create database connection — app/database.py
 
 ```python
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
@@ -125,10 +128,11 @@ Base = declarative_base()
 async def get_db():
     async with AsyncSessionLocal() as session:
         yield session
+```
 
 ---
 
-##5️⃣ Define ORM models — app/models.py
+## 5️⃣ Define ORM models — app/models.py
 
 ```python
 from sqlalchemy import Column, Integer, String, Boolean, Text, ForeignKey, DateTime, func
@@ -152,10 +156,11 @@ class Post(Base):
     owner_id = Column(Integer, ForeignKey("users.id"))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     owner = relationship("User", back_populates="posts")
+```
 
 ---
 
-##6️⃣ Define schemas — app/schemas.py
+## 6️⃣ Define schemas — app/schemas.py
 
 ```python
 from pydantic import BaseModel, EmailStr
@@ -178,10 +183,11 @@ class UserRead(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
+```
 
 ---
 
-##7️⃣ CRUD operations — app/crud.py
+## 7️⃣ CRUD operations — app/crud.py
 
 ```python
 from sqlalchemy import select
@@ -209,10 +215,11 @@ async def create_user(db: AsyncSession, u: schemas.UserCreate):
     await db.commit()
     await db.refresh(user)
     return user
+```
 
 ---
 
-##8️⃣ Authentication — app/auth.py
+## 8️⃣ Authentication — app/auth.py
 
 ```python
 import os
@@ -251,10 +258,11 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
     if not user:
         raise cred_exc
     return user
+```
 
 ---
 
-##9️⃣ Create the main app — app/main.py
+## 9️⃣ Create the main app — app/main.py
 
 ```python
 from fastapi import FastAPI, Depends, HTTPException, BackgroundTasks, status
@@ -283,45 +291,56 @@ async def create_user(user_in: schemas.UserCreate, background_tasks: BackgroundT
     user = await crud.create_user(db, user_in)
     background_tasks.add_task(background.send_welcome_email, user.email)
     return user
+```
 
 ---
 
-##🧑‍💻 Local Development <a name="local-dev"></a>
+## 🧑‍💻 Local Development <a name="local-dev"></a>
 1.Create .env from .env.example.
 
 2.Install dependencies:
 ```bash
 pip install -r requirements.txt
-
+```
 
 3.Run Redis (optional):
 ```bash
 redis-server
+```
 
 4.Run the app:
 ```bash
 uvicorn app.main:app --reload
+```
 
 5.Visit Swagger UI:
 👉 http://127.0.0.1:8000/docs
 
+---
 
-##🐳 Run with Docker Compose <a name="docker"></a>
+## 🐳 Run with Docker Compose <a name="docker"></a>
 ```bash
 docker-compose up --build
+```
+
 API → http://localhost:8000
 
 Swagger → http://localhost:8000/docs
 
 Postgres + Redis run automatically.
 
-##🧪 Run Tests <a name="tests"></a>
+---
+
+## 🧪 Run Tests <a name="tests"></a>
 ```bash
 pytest -v
+```
 
 Use pytest-asyncio for async tests, and httpx.AsyncClient for integration testing.
 
-##⚙️ Environment Variables <a name="env"></a>
+---
+
+## ⚙️ Environment Variables <a name="env"></a>
 Example .env:
 
 ```ini
@@ -331,9 +350,10 @@ JWT_SECRET=mysecretkey
 JWT_ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=60
 APP_DEBUG=true
+```
 
-
-##🧩 Troubleshooting <a name="notes"></a>
+---
+## 🧩 Troubleshooting <a name="notes"></a>
 Issue	Possible Fix
 DB tables not created	Check @app.on_event("startup") in main.py
 JWT decode error	Ensure same secret & algorithm used
@@ -341,7 +361,9 @@ Redis connection refused	Run Redis or comment out cache imports
 Slow responses	Avoid blocking I/O (use async properly)
 422 validation errors	Check schema types and request body format
 
-##🚀 Next Steps <a name="next-steps"></a>
+---
+
+## 🚀 Next Steps <a name="next-steps"></a>
 Add Alembic for migrations
 
 Use Celery or RQ for async tasks
@@ -352,6 +374,8 @@ Setup GitHub Actions CI
 
 Integrate logging, CORS, and rate limiting
 
-##Author: 🧑‍💻 Senior Python Developer Roadmap — Capstone Project
-##Tech stack: FastAPI · SQLAlchemy · PostgreSQL · Redis · JWT · Docker · Pytest
+---
+
+## Author: 🧑‍💻 Senior Python Developer Roadmap — Capstone Project
+## Tech stack: FastAPI · SQLAlchemy · PostgreSQL · Redis · JWT · Docker · Pytest
 
