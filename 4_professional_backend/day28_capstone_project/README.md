@@ -30,7 +30,7 @@ It explains **which file to create first**, why each file exists, and how to run
 ---
 
 ## 🗂️ Project Structure <a name="project-structure"></a>
-
+```text
 capstone-backend/
 │
 ├── app/
@@ -53,24 +53,24 @@ capstone-backend/
 ├── requirements.txt
 ├── Dockerfile
 ├── docker-compose.yml
-└── .env.example
-
-yaml
-Copy code
+└── .env
 
 ---
 
 ## 🪜 Step-by-Step File Creation <a name="step-by-step"></a>
 
-### 1️⃣ Create and activate your virtual environment
+## 1️⃣ Create and activate your virtual environment
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate   # macOS/Linux
-# .venv\Scripts\activate    # Windows
-2️⃣ Create requirements.txt
-text
-Copy code
+.venv\Scripts\activate    # Windows
+
+---
+
+##2️⃣ Create requirements.txt
+
+```text
 fastapi
 uvicorn[standard]
 SQLAlchemy==2.0.20
@@ -84,25 +84,32 @@ httpx
 aiofiles
 pytest
 pytest-asyncio
+
 Install with:
 
-bash
-Copy code
+```bash
 pip install -r requirements.txt
-3️⃣ Create .env.example
-ini
-Copy code
+
+---
+
+##3️⃣ Create .env
+
+```ini
+
 DATABASE_URL=sqlite+aiosqlite:///./dev.db
 REDIS_URL=redis://localhost:6379/0
 JWT_SECRET=your-secret
 JWT_ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=60
 APP_DEBUG=true
+
 Copy to .env and modify before running.
 
-4️⃣ Create database connection — app/database.py
-python
-Copy code
+---
+
+##4️⃣ Create database connection — app/database.py
+
+```python
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, declarative_base
 import os
@@ -118,9 +125,12 @@ Base = declarative_base()
 async def get_db():
     async with AsyncSessionLocal() as session:
         yield session
-5️⃣ Define ORM models — app/models.py
-python
-Copy code
+
+---
+
+##5️⃣ Define ORM models — app/models.py
+
+```python
 from sqlalchemy import Column, Integer, String, Boolean, Text, ForeignKey, DateTime, func
 from sqlalchemy.orm import relationship
 from .database import Base
@@ -142,9 +152,12 @@ class Post(Base):
     owner_id = Column(Integer, ForeignKey("users.id"))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     owner = relationship("User", back_populates="posts")
-6️⃣ Define schemas — app/schemas.py
-python
-Copy code
+
+---
+
+##6️⃣ Define schemas — app/schemas.py
+
+```python
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 
@@ -165,9 +178,12 @@ class UserRead(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
-7️⃣ CRUD operations — app/crud.py
-python
-Copy code
+
+---
+
+##7️⃣ CRUD operations — app/crud.py
+
+```python
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from passlib.context import CryptContext
@@ -193,9 +209,12 @@ async def create_user(db: AsyncSession, u: schemas.UserCreate):
     await db.commit()
     await db.refresh(user)
     return user
-8️⃣ Authentication — app/auth.py
-python
-Copy code
+
+---
+
+##8️⃣ Authentication — app/auth.py
+
+```python
 import os
 from datetime import datetime, timedelta
 from jose import jwt, JWTError
@@ -232,9 +251,12 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
     if not user:
         raise cred_exc
     return user
-9️⃣ Create the main app — app/main.py
-python
-Copy code
+
+---
+
+##9️⃣ Create the main app — app/main.py
+
+```python
 from fastapi import FastAPI, Depends, HTTPException, BackgroundTasks, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -261,30 +283,31 @@ async def create_user(user_in: schemas.UserCreate, background_tasks: BackgroundT
     user = await crud.create_user(db, user_in)
     background_tasks.add_task(background.send_welcome_email, user.email)
     return user
-🧑‍💻 Local Development <a name="local-dev"></a>
-Create .env from .env.example.
 
-Install dependencies:
+---
 
-bash
-Copy code
+##🧑‍💻 Local Development <a name="local-dev"></a>
+1.Create .env from .env.example.
+
+2.Install dependencies:
+```bash
 pip install -r requirements.txt
-Run Redis (optional):
 
-bash
-Copy code
+
+3.Run Redis (optional):
+```bash
 redis-server
-Run the app:
 
-bash
-Copy code
+4.Run the app:
+```bash
 uvicorn app.main:app --reload
-Visit Swagger UI:
+
+5.Visit Swagger UI:
 👉 http://127.0.0.1:8000/docs
 
-🐳 Run with Docker Compose <a name="docker"></a>
-bash
-Copy code
+
+##🐳 Run with Docker Compose <a name="docker"></a>
+```bash
 docker-compose up --build
 API → http://localhost:8000
 
@@ -292,24 +315,25 @@ Swagger → http://localhost:8000/docs
 
 Postgres + Redis run automatically.
 
-🧪 Run Tests <a name="tests"></a>
-bash
-Copy code
+##🧪 Run Tests <a name="tests"></a>
+```bash
 pytest -v
+
 Use pytest-asyncio for async tests, and httpx.AsyncClient for integration testing.
 
-⚙️ Environment Variables <a name="env"></a>
+##⚙️ Environment Variables <a name="env"></a>
 Example .env:
 
-ini
-Copy code
+```ini
 DATABASE_URL=sqlite+aiosqlite:///./dev.db
 REDIS_URL=redis://localhost:6379/0
 JWT_SECRET=mysecretkey
 JWT_ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=60
 APP_DEBUG=true
-🧩 Troubleshooting <a name="notes"></a>
+
+
+##🧩 Troubleshooting <a name="notes"></a>
 Issue	Possible Fix
 DB tables not created	Check @app.on_event("startup") in main.py
 JWT decode error	Ensure same secret & algorithm used
@@ -317,7 +341,7 @@ Redis connection refused	Run Redis or comment out cache imports
 Slow responses	Avoid blocking I/O (use async properly)
 422 validation errors	Check schema types and request body format
 
-🚀 Next Steps <a name="next-steps"></a>
+##🚀 Next Steps <a name="next-steps"></a>
 Add Alembic for migrations
 
 Use Celery or RQ for async tasks
@@ -328,17 +352,6 @@ Setup GitHub Actions CI
 
 Integrate logging, CORS, and rate limiting
 
-Author: 🧑‍💻 Senior Python Developer Roadmap — Capstone Project
-Tech stack: FastAPI · SQLAlchemy · PostgreSQL · Redis · JWT · Docker · Pytest
+##Author: 🧑‍💻 Senior Python Developer Roadmap — Capstone Project
+##Tech stack: FastAPI · SQLAlchemy · PostgreSQL · Redis · JWT · Docker · Pytest
 
-yaml
-Copy code
-
----
-
-Would you like me to generate a **short professional GitHub description + topics/tags** (for your repo header) as well?  
-Something like:
-
-> *“Production-ready FastAPI backend with async SQLAlchemy, JWT authentication, Redis caching, and Docker support — built as a Senior Python Developer capstone project.”*
-
-It helps your repo look very polished.
